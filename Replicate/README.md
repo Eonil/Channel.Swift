@@ -42,6 +42,6 @@ Collection Repository
 Collection repositories accept transaction signals, and apply
 it to its collection, and transfers the signal to next nodes.
 
-Each type of repository produces proper transaction signals to
-reproduce exact state of the repository if the receiver performs
-correct procedures.
+Each type of repository produces proper transaction signals that
+can be used to reproduce exact state of the repository if the 
+receiver performs correct procedures.
