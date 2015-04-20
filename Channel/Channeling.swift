@@ -45,7 +45,7 @@ private func === <T> (left: ChannelOf<T>, right: ChannelOf<T>) -> Bool {
 
 
 
-class Gate<T,U> {
+public class Gate<T,U> {
 	private weak var	origin		:	AnyObject?
 	private var			transform	:	T->U
 	private var			observers	:	[ChannelOf<U>] = []
@@ -56,13 +56,13 @@ class Gate<T,U> {
 	///	We can setup an andditional type constraint if compiler works well with this.
 	private func register<V,G where G: Gate<U,V>>(m: G) {
 	}
-	private func register<V>(m: Gate<U,V>) {
+	private func register<V>(m: Sensor<U,V>) {
 		assert(m is DispatcherType == false, "You cannot plug a dispatcher type object `\(m)` into another gate.")
 		assert(m.origin === nil, "You cannot register a gate into multiple gates. Transmission graph must be a strict tree.")
 		m.origin	=	self
 		observers.append(ChannelOf(m))
 	}
-	private func deregister<V>(m: Gate<U,V>) {
+	private func deregister<V>(m: Sensor<U,V>) {
 		assert(m is DispatcherType == false, "You cannot plug a dispatcher type object `\(m)` into another gate.")
 		assert(m.origin === self, "You cannot deregister a gate from an unrelated gate.")
 		for i in reverse(0..<observers.count) {
@@ -96,42 +96,69 @@ extension Gate: ChannelType {
 
 
 
+
+
+
+
+
+
+
+
+
+
+/////	An abstract base type for types that cannot sense any input signal.
+//public class Insensitive<T,U>: Gate<T,U> {
+//	override private init(_ transform: T->U) {
+//		super.init(transform)
+//	}
+//}
+
+///	An abstract base type for types that can sense some signals.
+public class Sensor<T,U>: Gate<T,U> {
+	override private init(_ transform: T->U) {
+		super.init(transform)
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 private protocol DispatcherType {
 }
 extension Dispatcher: DispatcherType {
 }
 
-///	Type erasuring emitter.
-///	You can use this wrapper to provide an emission-only object
-///	that cannot be registered to another node.
+///	Provides a node that you can dispatch some signals into.
 ///
-///	This is designed as an event emitter for an actor.
-struct UnowningEmitterOf<T> {
-	init(_ relay: Relay<T>) {
-		self.relay	=	relay
-	}
-	func register<U>(m: Gate<T,U>) {
-		relay.register(m)
-	}
-	func deregister<U>(m: Gate<T,U>) {
-		relay.deregister(m)
-	}
-	private unowned let	relay: Relay<T>
-}
-
-///	:param:		T	Signal type.
-class Dispatcher<T>: Gate<(),T> {
+///	:param:		T	
+///				Signal type.
+///
+///	You can't/shouldn't register a dispatcher to another gate.
+public class Dispatcher<T>: Gate<(),T> {
 	typealias	Signal	=	T
-	init() {
+	public init() {
 		super.init(Dispatcher.crashBecauseSignalingToThisClassIsNotAllowed)
 	}
-	func signal(s: Signal) {
+	public func signal(s: Signal) {
 		broadcast(s)
 	}
-	override func register<U>(m: Gate<T,U>) {
+	public override func register<U>(m: Sensor<T,U>) {
 		super.register(m)
 	}
-	override func deregister<U>(m: Gate<T,U>) {
+	public override func deregister<U>(m: Sensor<T,U>) {
 		super.deregister(m)
 	}
 	private static func crashBecauseSignalingToThisClassIsNotAllowed()->Signal {
@@ -139,23 +166,18 @@ class Dispatcher<T>: Gate<(),T> {
 	}
 }
 
-class Monitor<T>: Gate<T,()> {
-	typealias	Signal	=	T
-	init<S: SinkType where S.Element == Signal>(_ handler: S) {
+
+///	A node that let you monitor the signals coming into it.
+public class Monitor<T>: Sensor<T,()> {
+	public typealias	Signal	=	T
+	public init<S: SinkType where S.Element == Signal>(_ handler: S) {
 		var	h	=	handler
 		super.init({h.put($0)})
 	}
-	override convenience init(_ handler: Signal->()) {
+	public override convenience init(_ handler: Signal->()) {
 		self.init(SinkOf(handler))
 	}
-	convenience init() {
-		self.init({ _ in () })
-	}
-	private override func signal(s: Signal) {
-		super.signal(s)
-		handler(s)
-	}
-	var handler: Signal->() {
+	public var handler: Signal->() {
 		get {
 			return	transform
 		}
@@ -163,19 +185,32 @@ class Monitor<T>: Gate<T,()> {
 			transform	=	v
 		}
 	}
+	
+	private override func signal(s: Signal) {
+		super.signal(s)
+		handler(s)
+	}
+}
+extension Monitor {
+	public convenience init() {
+		self.init({ _ in () })
+	}
 }
 
-class Relay<T>: Gate<T,T> {
-	typealias	Signal	=	T
-	init() {
+///	A node that just relays signals. This is provided to connect
+///	component internal/external worlds.
+public class Relay<T>: Sensor<T,T> {
+	public typealias	Signal	=	T
+	public init() {
 		super.init(Relay.asIs)
 	}
-	override func register<U>(m: Gate<T,U>) {
+	public override func register<U>(m: Sensor<T,U>) {
 		super.register(m)
 	}
-	override func deregister<U>(m: Gate<T,U>) {
+	public override func deregister<U>(m: Sensor<T,U>) {
 		super.deregister(m)
 	}
+	
 	private static func asIs(s: T) -> T {
 		return	s
 	}
@@ -233,7 +268,7 @@ class Relay<T>: Gate<T,T> {
 
 
 
-///	Emits snapshot for each time when the value set
+///	Emits snapshot for each time when the value is being set
 ///	regardless or equality or duplication.
 class StatefulDispatcher<T,S>: Dispatcher<S> {
 	typealias	State	=	T
@@ -245,7 +280,7 @@ class StatefulDispatcher<T,S>: Dispatcher<S> {
 
 
 
-///	Emits snapshot for each time when the value set 
+///	Emits snapshot for each time when the value is being set
 ///	regardless or equality or duplication.
 class ValueRepository<T>: StatefulDispatcher<T,T> {
 }
@@ -316,13 +351,13 @@ protocol CollectionSignalType {
 
 ///	Edits a linked `ArrayRepository`.
 ///	This does not own the linked repository.
-struct ArrayEditor<T> {
-	var count: Int {
+public struct ArrayEditor<T> {
+	public var count: Int {
 		get {
 			return	storage.state.count
 		}
 	}
-	var state: [T] {
+	public var state: [T] {
 		get {
 			return	storage.state
 		}
@@ -332,31 +367,47 @@ struct ArrayEditor<T> {
 			storage.signal(ArraySignal.Initiation(snapshot: storage.state))
 		}
 	}
-	mutating func append(v: T) {
+	public mutating func append(v: T) {
 		storage.signal(ArraySignal.Transition(transaction: CollectionTransaction.insert([(count,v)])))
 	}
 	private unowned let storage: ArrayRepository<T>
 }
 
-class ArrayRepository<T>: CollectionRepository<[T],ArraySignal<T>> {
-	convenience init() {
+public class ArrayRepository<T>: CollectionRepository<[T],ArraySignal<T>> {
+	public convenience init() {
 		self.init([])
 	}
-	override init(_ state: State) {
+	public override init(_ state: State) {
 		super.init(state)
 	}
-	override func register<U>(m: Gate<Signal, U>) {
+	public override func register<U>(m: Sensor<Signal, U>) {
 		super.register(m)
 		m.signal(Signal.Initiation(snapshot: state))
 	}
-	override func deregister<U>(m: Gate<Signal, U>) {
+	public override func deregister<U>(m: Sensor<Signal, U>) {
 		m.signal(Signal.Termination(snapshot: state))
 		super.deregister(m)
 	}
 }
 
-class ArrayReplication<T>: Relay<CollectionTransaction<Int,T>> {
-	var state: [T] {
+public class ArrayProxy<T>: Relay<CollectionTransaction<Int,T>> {
+	public override init() {
+		super.init()
+	}
+	public var	state: [T] {
+		get {
+			return	originRepository.state
+		}
+	}
+	private var originRepository: ArrayRepository<T> {
+		get {
+			return	origin as! ArrayRepository<T>
+		}
+	}
+}
+
+public class ArrayReplication<T>: Relay<CollectionTransaction<Int,T>> {
+	public var state: [T] {
 		get {
 			return	session!.localcopy
 		}
@@ -369,7 +420,7 @@ class ArrayReplication<T>: Relay<CollectionTransaction<Int,T>> {
 		}
 		didSet {
 			if let o: AnyObject = origin {
-				assert(o is ArrayRepository<T>, "This class object must be directly plugged only to `ArrayRepository<T>`.")
+				assert(o is ArrayRepository<T>, "This class object must be directly plugged only into `ArrayRepository<T>`.")
 				let	o	=	o as! ArrayRepository<T>
 				session	=	ArrayReplicationSession(self, o.state)
 			}
@@ -388,8 +439,8 @@ private class ArrayReplicationSession<T> {
 	}
 }
 
-class ArrayTransform<T,U>: Gate<ArraySignal<T>, ArraySignal<U>> {
-	init(_ transform: T->U) {
+public class ArrayTransform<T,U>: Gate<ArraySignal<T>, ArraySignal<U>> {
+	public init(_ transform: T->U) {
 		let	m0	=	transform
 		let	m1	=	{ (v: T?)->U? in
 			return	v == nil ? nil : transform(v!)
@@ -412,7 +463,10 @@ class ArrayTransform<T,U>: Gate<ArraySignal<T>, ArraySignal<U>> {
 		return	(past: (m.past.key, map1(m.past.value)), future: (m.future.key, map1(m.future.value)))
 	}
 }
-class ArrayMonitor<T>: Monitor<CollectionTransaction<Int,T>> {
+public class ArrayMonitor<T>: Monitor<CollectionTransaction<Int,T>> {
+	public override init<S : SinkType where S.Element == Signal>(_ handler: S) {
+		super.init(handler)
+	}
 }
 
 
@@ -445,11 +499,11 @@ class DictionaryRepository<K: Hashable,V>: CollectionRepository<[K:V],Dictionary
 	override init(_ state: State) {
 		super.init(state)
 	}
-	override func register<U>(m: Gate<Signal, U>) {
+	override func register<U>(m: Sensor<Signal, U>) {
 		super.register(m)
 		m.signal(Signal.Initiation(snapshot: state))
 	}
-	override func deregister<U>(m: Gate<Signal, U>) {
+	override func deregister<U>(m: Sensor<Signal, U>) {
 		m.signal(Signal.Termination(snapshot: state))
 		super.deregister(m)
 	}
@@ -469,7 +523,7 @@ class DictionaryReplication<K: Hashable,V>: Relay<CollectionTransaction<K,V>> {
 		}
 		didSet {
 			if let o: AnyObject = origin {
-				assert(o is DictionaryRepository<K,V>, "This class object must be directly plugged only to `ArrayRepository<T>`.")
+				assert(o is DictionaryRepository<K,V>, "This class object must be directly plugged only to `DictionaryRepository<T>`.")
 				let	o	=	o as! DictionaryRepository<K,V>
 				session	=	DictionaryReplicationSession(self, o.state)
 			}

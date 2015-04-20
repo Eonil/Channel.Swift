@@ -8,9 +8,9 @@
 
 
 
-enum ArraySignal<T> {
-	typealias	Snapshot	=	[T]
-	typealias	Transaction	=	CollectionTransaction<Int,T>
+public enum ArraySignal<T> {
+	public typealias	Snapshot	=	[T]
+	public typealias	Transaction	=	CollectionTransaction<Int,T>
 	case Initiation	(snapshot	: Snapshot)
 	case Transition	(transaction: Transaction)
 	case Termination(snapshot	: Snapshot)
@@ -19,8 +19,8 @@ extension ArraySignal: CollectionSignalType {
 	var initiation: Snapshot? {
 		get {
 			switch self {
-			case .Initiation(snapshot: let s):	return	s
-			default:							return	nil
+			case .Initiation(snapshot: let s):		return	s
+			default:								return	nil
 			}
 		}
 	}
@@ -35,8 +35,8 @@ extension ArraySignal: CollectionSignalType {
 	var termination: Snapshot? {
 		get {
 			switch self {
-			case .Termination(snapshot: let s):	return	s
-			default:							return	nil
+			case .Termination(snapshot: let s):		return	s
+			default:								return	nil
 			}
 		}
 	}

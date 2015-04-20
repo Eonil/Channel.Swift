@@ -18,8 +18,8 @@ extension DictionarySignal: CollectionSignalType {
 	var initiation: Snapshot? {
 		get {
 			switch self {
-			case .Initiation(snapshot: let s):	return	s
-			default:							return	nil
+			case .Initiation(snapshot: let s):		return	s
+			default:								return	nil
 			}
 		}
 	}
@@ -34,8 +34,8 @@ extension DictionarySignal: CollectionSignalType {
 	var termination: Snapshot? {
 		get {
 			switch self {
-			case .Termination(snapshot: let s):	return	s
-			default:							return	nil
+			case .Termination(snapshot: let s):		return	s
+			default:								return	nil
 			}
 		}
 	}
