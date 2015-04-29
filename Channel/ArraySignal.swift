@@ -10,7 +10,7 @@
 
 public enum ArraySignal<T> {
 	public typealias	Snapshot	=	[T]
-	public typealias	Transaction	=	CollectionTransaction<Int,T>
+	public typealias	Transaction	=	CollectionTransaction<Array<T>.Index,T>
 	case Initiation	(snapshot	: Snapshot)
 	case Transition	(transaction: Transaction)
 	case Termination(snapshot	: Snapshot)

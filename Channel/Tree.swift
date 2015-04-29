@@ -16,7 +16,7 @@ class Node<T> {
 	
 }
 
-class TreeRepository<T>: StatefulDispatcher<Tree<T>,NodeSignal<T>> {
+class TreeRepository<T>: Repository<Tree<T>,NodeSignal<T>> {
 	
 }
 

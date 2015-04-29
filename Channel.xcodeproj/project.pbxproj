@@ -174,10 +174,10 @@
 			isa = PBXGroup;
 			children = (
 				451EA90C1AE14E540033A3FB /* Channeling.swift */,
+				451EA90D1AE14E540033A3FB /* CollectionTransaction.swift */,
 				451EA9111AE14E540033A3FB /* SetSignal.swift */,
 				451EA90B1AE14E540033A3FB /* ArraySignal.swift */,
 				451EA90E1AE14E540033A3FB /* DictionarySignal.swift */,
-				451EA90D1AE14E540033A3FB /* CollectionTransaction.swift */,
 				451EA9121AE14E540033A3FB /* TypesafeGuards.swift */,
 				4553450F1AE17A5D00441AD5 /* Tree.swift */,
 				451EA8F11AE0054C0033A3FB /* Info.plist */,

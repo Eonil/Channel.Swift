@@ -44,7 +44,7 @@ private func === <T> (left: ChannelOf<T>, right: ChannelOf<T>) -> Bool {
 
 
 
-
+///	The fundamental type of signal processing node.
 public class Gate<T,U> {
 	private weak var	origin		:	AnyObject?
 	private var			transform	:	T->U
@@ -52,9 +52,6 @@ public class Gate<T,U> {
 	
 	private init(_ transform: T->U) {
 		self.transform	=	transform
-	}
-	///	We can setup an andditional type constraint if compiler works well with this.
-	private func register<V,G where G: Gate<U,V>>(m: G) {
 	}
 	private func register<V>(m: Sensor<U,V>) {
 		assert(m is DispatcherType == false, "You cannot plug a dispatcher type object `\(m)` into another gate.")
@@ -114,6 +111,8 @@ extension Gate: ChannelType {
 //}
 
 ///	An abstract base type for types that can sense some signals.
+///	You cannot use or derive from this class in your code. Use `Monitor` 
+///	or `Relay` instead of.
 public class Sensor<T,U>: Gate<T,U> {
 	override private init(_ transform: T->U) {
 		super.init(transform)
@@ -138,19 +137,19 @@ public class Sensor<T,U>: Gate<T,U> {
 
 private protocol DispatcherType {
 }
-extension Dispatcher: DispatcherType {
+extension Emitter: DispatcherType {
 }
 
-///	Provides a node that you can dispatch some signals into.
+///	Provides a state-less node that you can emit some signals by your control.
 ///
 ///	:param:		T	
 ///				Signal type.
 ///
-///	You can't/shouldn't register a dispatcher to another gate.
-public class Dispatcher<T>: Gate<(),T> {
+///	You can't/shouldn't register a emitter to another gate.
+public class Emitter<T>: Gate<(),T> {
 	typealias	Signal	=	T
 	public init() {
-		super.init(Dispatcher.crashBecauseSignalingToThisClassIsNotAllowed)
+		super.init(Emitter.crashBecauseSignalingToThisClassIsNotAllowed)
 	}
 	public func signal(s: Signal) {
 		broadcast(s)
@@ -211,6 +210,7 @@ public class Relay<T>: Sensor<T,T> {
 		super.deregister(m)
 	}
 	
+	///	Passes input to output just "as is".
 	private static func asIs(s: T) -> T {
 		return	s
 	}
@@ -268,9 +268,10 @@ public class Relay<T>: Sensor<T,T> {
 
 
 
-///	Emits snapshot for each time when the value is being set
-///	regardless or equality or duplication.
-class StatefulDispatcher<T,S>: Dispatcher<S> {
+///	An emitter with state strage.
+///	This stores and emits value snapshot for each time when the value is being 
+///	set regardless or equality or duplication.
+class Repository<T,S>: Emitter<S> {
 	typealias	State	=	T
 	private(set) var state: State
 	private init(_ state: State) {
@@ -280,16 +281,20 @@ class StatefulDispatcher<T,S>: Dispatcher<S> {
 
 
 
-///	Emits snapshot for each time when the value is being set
-///	regardless or equality or duplication.
-class ValueRepository<T>: StatefulDispatcher<T,T> {
+///	A specialized repository to store and emit single value.
+class ValueRepository<T>: Repository<T,T> {
 }
 
-class CollectionRepository<T,S where T: CollectionType, S: CollectionSignalType>: StatefulDispatcher<T,S> {
+///	A specialized repository to handle multiple value collection type.
+/// If the value is a collection type, you might want to take delta mutation
+///	signals instead of snapshot dispatch. This provides that.
+//class CollectionRepository<T where T: CollectionType>: Repository<T, CollectionTransaction<T.Index, T.Generator.Element>> {
+class CollectionRepository<T,S where T: CollectionType, S: CollectionSignalType, S.Snapshot == T>: Repository<T,S> {
 	private override init(_ state: State) {
 		super.init(state)
 	}
 }
+
 protocol CollectionSignalType {
 	typealias	Snapshot
 	typealias	Transaction
