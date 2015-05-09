@@ -268,9 +268,9 @@ public class Relay<T>: Sensor<T,T> {
 
 
 
-///	An emitter with state strage.
+///	An emitter with state storage.
 ///	This stores and emits value snapshot for each time when the value is being 
-///	set regardless or equality or duplication.
+///	set regardless of equality or duplication.
 class Repository<T,S>: Emitter<S> {
 	typealias	State	=	T
 	private(set) var state: State
@@ -278,12 +278,56 @@ class Repository<T,S>: Emitter<S> {
 		self.state	=	state
 	}
 }
+///	A relay that provides a read-only view of a repository.
+class Proxy<T,S>: Relay<T> {
+	private override init() {
+		super.init()
+	}
+	private var state: T {
+		get {
+			return	originRepository.state
+		}
+	}
+	private var originRepository: Repository<T,S> {
+		get {
+			return	origin as! Repository<T,S>
+		}
+	}
+}
 
 
 
 ///	A specialized repository to store and emit single value.
-class ValueRepository<T>: Repository<T,T> {
+public class ValueRepository<T>: Repository<T,T> {
+	public override init(_ state: T) {
+		super.init(state)
+	}
 }
+///	A proxy that provides a read-only view of a repository.
+public class ValueProxy<T>: Relay<T> {
+	public override init() {
+		super.init()
+	}
+	public var	state: T {
+		get {
+			return	originRepository.state
+		}
+	}
+	private var originRepository: ValueRepository<T> {
+		get {
+			return	origin as! ValueRepository<T>
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
 
 ///	A specialized repository to handle multiple value collection type.
 /// If the value is a collection type, you might want to take delta mutation

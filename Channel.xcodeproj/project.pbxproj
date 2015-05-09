@@ -25,6 +25,10 @@
 		45300B791AE160790015508D /* DictionarySignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451EA90E1AE14E540033A3FB /* DictionarySignal.swift */; };
 		45300B7A1AE160790015508D /* TypesafeGuards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 451EA9121AE14E540033A3FB /* TypesafeGuards.swift */; };
 		455345101AE17A5D00441AD5 /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4553450F1AE17A5D00441AD5 /* Tree.swift */; };
+		45E3F1A11AF183540078E7E8 /* OrderlessTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E3F1A01AF183540078E7E8 /* OrderlessTree.swift */; };
+		45E3F1A31AF19DD10078E7E8 /* Wait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E3F1A21AF19DD00078E7E8 /* Wait.swift */; };
+		45E3F1A51AF861A70078E7E8 /* AsynchronousState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E3F1A41AF861A70078E7E8 /* AsynchronousState.swift */; };
+		45E3F1BC1AF8B0720078E7E8 /* ProxyingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E3F1BB1AF8B0720078E7E8 /* ProxyingSignal.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +95,10 @@
 		455345091AE1642700441AD5 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4553450A1AE1642700441AD5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4553450F1AE17A5D00441AD5 /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
+		45E3F1A01AF183540078E7E8 /* OrderlessTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderlessTree.swift; sourceTree = "<group>"; };
+		45E3F1A21AF19DD00078E7E8 /* Wait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wait.swift; sourceTree = "<group>"; };
+		45E3F1A41AF861A70078E7E8 /* AsynchronousState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsynchronousState.swift; sourceTree = "<group>"; };
+		45E3F1BB1AF8B0720078E7E8 /* ProxyingSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProxyingSignal.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,7 +187,10 @@
 				451EA90B1AE14E540033A3FB /* ArraySignal.swift */,
 				451EA90E1AE14E540033A3FB /* DictionarySignal.swift */,
 				451EA9121AE14E540033A3FB /* TypesafeGuards.swift */,
+				45E3F1BB1AF8B0720078E7E8 /* ProxyingSignal.swift */,
 				4553450F1AE17A5D00441AD5 /* Tree.swift */,
+				45E3F1A01AF183540078E7E8 /* OrderlessTree.swift */,
+				45E3F1A21AF19DD00078E7E8 /* Wait.swift */,
 				451EA8F11AE0054C0033A3FB /* Info.plist */,
 			);
 			path = Channel;
@@ -214,6 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				451EA9271AE158900033A3FB /* AppDelegate.swift */,
+				45E3F1A41AF861A70078E7E8 /* AsynchronousState.swift */,
 				451EA9291AE158900033A3FB /* Images.xcassets */,
 				451EA92B1AE158900033A3FB /* MainMenu.xib */,
 				451EA9251AE158900033A3FB /* Supporting Files */,
@@ -400,10 +412,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				455345101AE17A5D00441AD5 /* Tree.swift in Sources */,
+				45E3F1A31AF19DD10078E7E8 /* Wait.swift in Sources */,
+				45E3F1A11AF183540078E7E8 /* OrderlessTree.swift in Sources */,
 				45300B781AE160790015508D /* CollectionTransaction.swift in Sources */,
 				45300B761AE160790015508D /* SetSignal.swift in Sources */,
 				45300B791AE160790015508D /* DictionarySignal.swift in Sources */,
 				45300B771AE160790015508D /* ArraySignal.swift in Sources */,
+				45E3F1BC1AF8B0720078E7E8 /* ProxyingSignal.swift in Sources */,
 				45300B7A1AE160790015508D /* TypesafeGuards.swift in Sources */,
 				45300B751AE160790015508D /* Channeling.swift in Sources */,
 			);
@@ -422,6 +437,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				451EA9281AE158900033A3FB /* AppDelegate.swift in Sources */,
+				45E3F1A51AF861A70078E7E8 /* AsynchronousState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

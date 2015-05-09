@@ -1,8 +1,8 @@
 //
-//  Tree.swift
+//  OrderlessTree.swift
 //  Channel
 //
-//  Created by Hoon H. on 2015/04/18.
+//  Created by Hoon H. on 2015/04/30.
 //  Copyright (c) 2015 Eonil. All rights reserved.
 //
 
@@ -11,27 +11,26 @@ import Foundation
 
 
 ///	**EXPERIMENTAL** Don't use this.
-///	A nested hierachical array.
-class Tree<T> {
+///	A nested hierachical dictionary.
+class OrderlessTree<K,V> {
 	
 }
-class Node<T> {
+class OrderlessNode<K,V> {
+}
+
+class OrderlessTreeRepository<K,V>: Repository<OrderlessTree<K,V>,OrderlessNodeSignal<K,V>> {
 	
 }
 
-class TreeRepository<T>: Repository<Tree<T>,NodeSignal<T>> {
-	
-}
-
-enum NodeSignal<T> {
-	typealias	Snapshot	=	Tree<T>
-	typealias	Transaction	=	CollectionTransaction<TreeNodeLocation,Node<T>>
+enum OrderlessNodeSignal<K,V> {
+	typealias	Snapshot	=	OrderlessTree<K,V>
+	typealias	Transaction	=	CollectionTransaction<OrderlessTreeNodeLocation<K>,OrderlessNode<K,V>>
 	case Initiation	(snapshot	: Snapshot)
 	case Transition	(transaction: Transaction)
 	case Termination(snapshot	: Snapshot)
 }
 
-extension NodeSignal: CollectionSignalType {
+extension OrderlessNodeSignal: CollectionSignalType {
 	var initiation: Snapshot? {
 		get {
 			switch self {
@@ -64,23 +63,8 @@ extension NodeSignal: CollectionSignalType {
 ///
 ///	If `indexes == []`, it's a root node.
 //	Otherwise, this designate a node at the index at the level.
-struct TreeNodeLocation {
-	var	indexes: [Int]
+struct OrderlessTreeNodeLocation<K> {
+	var	indexes: [K]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

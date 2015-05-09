@@ -19,7 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
 	
-		let	e	=	Dispatcher<Int>()
+		let	e	=	Emitter<Int>()
 		let	r	=	Relay<Int>()
 		let	m	=	Monitor<Int>(println)
 		e.register(r)
@@ -78,7 +78,7 @@ class TableViewDataBindingSession: NSObject, NSTableViewDataSource, NSTableViewD
 		return	proxy.state.count
 	}
 	func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
-		
+		return	nil
 	}
 	
 	private let	configuration	:	Configuration
